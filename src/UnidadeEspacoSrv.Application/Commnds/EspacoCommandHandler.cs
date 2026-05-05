@@ -27,7 +27,7 @@ namespace UnidadeEspacoSrv.Application.Commnds
         public async Task<Espaco> Handle(EspacoCreateCommand request, CancellationToken cancellationToken)
         {
             var objeto = _mapper.Map<Espaco>(request);
-            var teste = request._ValidationResult.Errors;
+           
             if(!request.IsValid()) return null;
 
             var response = await _repository.AddAsync(objeto);
