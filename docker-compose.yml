@@ -1,0 +1,15 @@
+version: '3.4'
+
+services:
+  unidade-espaco-api:
+    image: unidade-espaco-api-dev
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5091:5091"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnectionString=Server=host.docker.internal,1433;Database=EventosCulturaisDB;User Id=anderson;Password=123456;TrustServerCertificate=True;
+      - MongoDBConnection__ConnectionString=mongodb://host.docker.internal:27017
+      - MongoDBConnection__DataBaseName=EventosCulturaisDB

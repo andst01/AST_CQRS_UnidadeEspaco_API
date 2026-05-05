@@ -1,0 +1,40 @@
+# Build stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copia apenas os csproj para cache de restore
+COPY ["src/UnidadeEspacoSrv.Api/UnidadeEspacoSrv.Api.csproj", "src/UnidadeEspacoSrv.Api/"]
+COPY ["src/UnidadeEspacoSrv.Infra.CrossCuting/UnidadeEspacoSrv.Infra.CrossCuting.csproj", "src/UnidadeEspacoSrv.Infra.CrossCuting/"]
+COPY ["src/UnidadeEspacoSrv.Infra.Data/UnidadeEspacoSrv.Infra.Data.csproj", "src/UnidadeEspacoSrv.Infra.Data/"]
+COPY ["src/UnidadeEspacoSrv.Domain/UnidadeEspacoSrv.Domain.csproj", "src/UnidadeEspacoSrv.Domain/"]
+COPY ["src/UnidadeEspacoSrv.Application/UnidadeEspacoSrv.Application.csproj", "src/UnidadeEspacoSrv.Application/"]
+
+# Restaura pacotes
+RUN dotnet restore "src/UnidadeEspacoSrv.Api/UnidadeEspacoSrv.Api.csproj"
+
+COPY ["tests/UnidadeEspacoSrv.Api.Test/UnidadeEspacoSrv.Api.csproj", "tests/UnidadeEspacoSrv.Api.Test/"]
+COPY ["tests/UnidadeEspacoSrv.Infra.CrossCuting.Test/UnidadeEspacoSrv.Infra.CrossCuting.csproj", "tests/UnidadeEspacoSrv.Infra.CrossCuting.Test/"]
+COPY ["tests/UnidadeEspacoSrv.Infra.Data.Test/UnidadeEspacoSrv.Infra.Data.csproj", "tests/UnidadeEspacoSrv.Infra.Data.Test/"]
+COPY ["tests/UnidadeEspacoSrv.Application.Test/UnidadeEspacoSrv.Application.csproj", "tests/UnidadeEspacoSrv.Application.Test/"]
+
+# Copia todo o código
+COPY . .
+
+# Publica especificando **o caminho completo do csproj**
+RUN dotnet publish "src/UnidadeEspacoSrv.Api/UnidadeEspacoSrv.Api.csproj" -c Debug -o /app/publish
+
+# Runtime stage
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
+WORKDIR /app
+
+# Variáveis de ambiente para Development
+ENV ASPNETCORE_ENVIRONMENT=Development
+ENV DOTNET_RUNNING_IN_CONTAINER=true
+ENV ASPNETCORE_URLS=http://+:5091
+
+# Copia os binários
+COPY --from=build /app/publish .
+
+EXPOSE 5091
+
+ENTRYPOINT ["dotnet", "UnidadeEspacoSrv.Api.dll"]
