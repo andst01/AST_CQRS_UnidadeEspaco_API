@@ -22,6 +22,7 @@ namespace UnidadeEspacoSrv.Domain.Events
 
     public class EspacoCreateNotification : EspacoNotification { }
     public class EspacoUpdateNotification : EspacoNotification { }
+    
     public class EspacoDeleteNotification : EspacoNotification { }
 
     public class EspacoReadModel : EspacoNotification 

@@ -12,7 +12,7 @@ namespace UnidadeEspacoSrv.CrossCuting.Configuration
             if (services == null) throw new ArgumentNullException(nameof(services));
 
             services.AddDbContext<SQLDbContext>(x =>
-               x.UseLazyLoadingProxies().UseSqlServer(configuration.GetConnectionString("DefaultConnectionString")));
+               x.UseSqlServer(configuration.GetConnectionString("DefaultConnectionString")));
 
             
         }

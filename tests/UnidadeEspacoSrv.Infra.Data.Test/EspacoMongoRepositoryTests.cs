@@ -113,37 +113,31 @@ namespace UnidadeEspacoSrv.Infra.Data.Test
         public async Task UpdateAsync_DevePersistirNoBancoReal()
         {
             // Arrange
-            var entidade = new EspacoNotification { Nome = "Audit Log 1" };
-            entidade._Id = new MongoDB.Bson.ObjectId(); // Simula um ID gerado pelo MongoDB
+            var entidade = new EspacoNotification { Nome = "Audit Log 1", Unidades = null };
+            entidade._Id = MongoDB.Bson.ObjectId.GenerateNewId();
 
-            // Ajuste o Setup para aceitar qualquer opção e token
-            _mockCollection.Setup(c => c.InsertOneAsync(
-                It.IsAny<EspacoNotification>(),
-                It.IsAny<InsertOneOptions>(),
-                It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask)
-            .Verifiable();
-
-            await _repository.AddAsync(entidade, "Espaco");
-
-            // Act
+            // Mock do cursor para o FindAsync funcionar
+            var mockCursor = new Mock<IAsyncCursor<EspacoNotification>>();
+            mockCursor.Setup(_ => _.Current).Returns(new List<EspacoNotification> { entidade });
+            mockCursor.SetupSequence(_ => _.MoveNextAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(true)
+                .ReturnsAsync(false);
 
             _mockCollection.Setup(c => c.FindAsync(
                     It.IsAny<FilterDefinition<EspacoNotification>>(),
                     It.IsAny<FindOptions<EspacoNotification, EspacoNotification>>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Mock.Of<IAsyncCursor<EspacoNotification>>())
-                .Verifiable();
+                .ReturnsAsync(mockCursor.Object);
 
             _mockCollection.Setup(c => c.ReplaceOneAsync(
                     It.IsAny<FilterDefinition<EspacoNotification>>(),
                     It.IsAny<EspacoNotification>(),
                     It.IsAny<ReplaceOptions>(),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new ReplaceOneResult.Acknowledged(1, 1, entidade.Id))
+                .ReturnsAsync(new ReplaceOneResult.Acknowledged(1, 1, entidade._Id))
                 .Verifiable();
 
-
+            // Act
             entidade.Nome = "Audit Log 1 - Updated";
             await _repository.UpdateAsync(Builders<EspacoNotification>.Filter.Where(e => e.Id == entidade.Id), entidade, "Espaco");
 

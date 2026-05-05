@@ -25,7 +25,9 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
         public async Task Handle(UnidadeUpdateNotification notification, CancellationToken cancellationToken)
         {
-           await _repository.UpdateAsync(Builders<UnidadeNotification>.Filter.Where(e => e.Id == notification.Id), notification, "Unidade");
+            //await _repository.GetByFilter(Builders<UnidadeNotification>.Filter.Where(e => e.Id == notification.Id), "Unidade");
+            notification.Espaco = null;
+            await _repository.UpdateAsync(Builders<UnidadeNotification>.Filter.Where(e => e.Id == notification.Id), notification, "Unidade");
         }
 
         public async Task Handle(UnidadeDeleteNotification notification, CancellationToken cancellationToken)

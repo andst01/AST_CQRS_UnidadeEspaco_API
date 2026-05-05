@@ -1,7 +1,9 @@
+using MongoDB.Bson.Serialization;
 using System.Diagnostics.CodeAnalysis;
 
 
 using UnidadeEspacoSrv.CrossCuting.Configuration;
+using UnidadeEspacoSrv.Domain.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,25 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+BsonClassMap.RegisterClassMap<UnidadeNotification>(cm => {
+    cm.AutoMap();
+    cm.SetIsRootClass(true); // Define como a base da hierarquia
+});
+
+// Registra as classes filhas para o MongoDB saber quem são
+BsonClassMap.RegisterClassMap<UnidadeCreateNotification>();
+BsonClassMap.RegisterClassMap<UnidadeUpdateNotification>();
+
+
+BsonClassMap.RegisterClassMap<EspacoNotification>(cm => {
+    cm.AutoMap();
+    cm.SetIsRootClass(true); // Define como a base da hierarquia
+});
+
+// Registra as classes filhas para o MongoDB saber quem são
+BsonClassMap.RegisterClassMap<EspacoCreateNotification>();
+BsonClassMap.RegisterClassMap<EspacoUpdateNotification>();
 
 var app = builder.Build();
 

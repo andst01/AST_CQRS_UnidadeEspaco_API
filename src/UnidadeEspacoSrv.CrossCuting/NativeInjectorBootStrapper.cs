@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using MongoDB.Bson.Serialization;
 using UnidadeEspacoSrv.Application;
 using UnidadeEspacoSrv.Application.Commands;
 using UnidadeEspacoSrv.Application.Commnds;
@@ -41,6 +42,8 @@ namespace UnidadeEspacoSrv.CrossCuting
             services.AddScoped(typeof(IAppBase<,,,,,,>), typeof(AppBase<,,,,,,>));
             services.AddScoped<IEspacoApp, EspacoApp>();
             services.AddScoped<IUnidadeApp, UnidadeApp>();
+
+           
 
             services.AddScoped<INotificationHandler<UnidadeCreateNotification>, UnidadeNotificationHandler>();
             services.AddScoped<INotificationHandler<UnidadeUpdateNotification>, UnidadeNotificationHandler>();

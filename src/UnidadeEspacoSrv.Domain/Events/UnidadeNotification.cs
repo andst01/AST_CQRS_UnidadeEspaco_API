@@ -22,6 +22,7 @@ namespace UnidadeEspacoSrv.Domain.Events
 
     public class UnidadeCreateNotification : UnidadeNotification { }
     public class UnidadeUpdateNotification : UnidadeNotification { }
+    
     public class UnidadeDeleteNotification : UnidadeNotification { }
 
     public class UnidadeReadModel : UnidadeNotification

@@ -57,7 +57,7 @@ namespace UnidadeEspacoSrv.Infra.CrossCuting.Test
 
             Assert.Multiple(() =>
             {
-                Assert.That(hasLazyLoading, Is.True, "Lazy Loading Proxies não foi configurado.");
+                Assert.That(hasLazyLoading, Is.False, "Lazy Loading Proxies não foi configurado.");
                 Assert.That(hasSqlServer, Is.True, "O provedor SQL Server não foi configurado.");
             });
         }

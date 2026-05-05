@@ -170,10 +170,15 @@ namespace UnidadeEspacoSrv.Data.Repository.MongoDB
         /// <returns></returns>
         public async Task UpdateAsync(FilterDefinition<TEntity> filter, TEntity obj, string collectionName = null)
         {
+            
             var data = await GetCollection(collectionName).FindAsync(filter);
-            // obj._Id = data.FirstOrDefault()._Id;
-
-            await GetCollection(collectionName).ReplaceOneAsync(filter, obj);
+            var existing = await data.FirstOrDefaultAsync();
+            if (existing != null)
+            {
+                obj._Id = existing._Id;
+                await GetCollection(collectionName).ReplaceOneAsync(filter, obj);
+            }
+           
         }
     }
 }
