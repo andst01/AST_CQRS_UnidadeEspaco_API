@@ -93,9 +93,9 @@ namespace UnidadeEspacoSrv.Data.Repository.SQL
         /// SaveChangesAsync: Persiste as alterações feitas no contexto do Entity Framework Core no banco de dados. Retorna o número de registros afetados.
         /// </summary>
         /// <returns></returns>
-        public Task<bool> SaveChangesAsync()
+        public async Task<bool> SaveChangesAsync()
         {
-            return _context.Commit();
+            return await _context.Commit();
         }
     }
 }

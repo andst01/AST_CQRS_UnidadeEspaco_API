@@ -3,6 +3,7 @@ using System.Collections;
 using UnidadeEspacoSrv.Domain.Events;
 using UnidadeEspacoSrv.Domain.Interfaces.MongoDb;
 using UnidadeEspacoSrv.Domain.Utils;
+using static System.Net.WebRequestMethods;
 
 namespace UnidadeEspacoSrv.Data.Repository.MongoDB
 {
@@ -137,9 +138,10 @@ namespace UnidadeEspacoSrv.Data.Repository.MongoDB
         public async Task RemoveAsync(FilterDefinition<TEntity> filter, string collectionName = null)
         {
             var data = await GetCollection(collectionName).FindAsync(filter);
-            var id = data.FirstOrDefault()._Id;
+            var existing = await data.FirstOrDefaultAsync();
+            
 
-            await GetCollection(collectionName).DeleteOneAsync(Builders<TEntity>.Filter.Eq(x => x._Id, id));
+            await GetCollection(collectionName).DeleteOneAsync(filter);
         }
 
         /// <summary>
@@ -149,6 +151,9 @@ namespace UnidadeEspacoSrv.Data.Repository.MongoDB
         /// <returns></returns>
         public async Task RemoveAsync(string id, string collectionName = null)
         {
+            //var filter = 
+           // var data = await GetCollection(collectionName).FindAsync(filter);
+           // var existing = await data.FirstOrDefaultAsync();
             await GetCollection(collectionName).DeleteOneAsync(Builders<TEntity>.Filter.Eq(doc => doc._Id.ToString(), id));
         }
 

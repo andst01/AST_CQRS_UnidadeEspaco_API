@@ -27,6 +27,7 @@ BsonClassMap.RegisterClassMap<UnidadeNotification>(cm => {
 // Registra as classes filhas para o MongoDB saber quem são
 BsonClassMap.RegisterClassMap<UnidadeCreateNotification>();
 BsonClassMap.RegisterClassMap<UnidadeUpdateNotification>();
+BsonClassMap.RegisterClassMap<UnidadeDeleteNotification>();
 
 
 BsonClassMap.RegisterClassMap<EspacoNotification>(cm => {
@@ -37,6 +38,7 @@ BsonClassMap.RegisterClassMap<EspacoNotification>(cm => {
 // Registra as classes filhas para o MongoDB saber quem são
 BsonClassMap.RegisterClassMap<EspacoCreateNotification>();
 BsonClassMap.RegisterClassMap<EspacoUpdateNotification>();
+BsonClassMap.RegisterClassMap<EspacoDeleteNotification>();
 
 var app = builder.Build();
 

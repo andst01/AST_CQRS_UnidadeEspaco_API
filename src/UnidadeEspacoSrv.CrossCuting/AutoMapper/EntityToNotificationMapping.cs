@@ -17,6 +17,8 @@ namespace UnidadeEspacoSrv.CrossCuting.AutoMapper
                 .ForMember(m => m._Id, opt => opt.Ignore());
             CreateMap<Espaco, EspacoCreateNotification>()
                 .ForMember(m => m._Id, opt => opt.Ignore());
+            CreateMap<Espaco, EspacoUpdateNotification>()
+               .ForMember(m => m._Id, opt => opt.Ignore());
             CreateMap<Espaco, EspacoDeleteNotification>()
                .ForMember(m => m._Id, opt => opt.Ignore());
 

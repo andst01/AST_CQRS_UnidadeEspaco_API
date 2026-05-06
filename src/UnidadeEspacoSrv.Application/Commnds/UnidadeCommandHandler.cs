@@ -17,7 +17,7 @@ namespace UnidadeEspacoSrv.Application.Commnds
         private readonly IUnidadeRepository _repository;
         private readonly IMapper _mapper;
 
-        public UnidadeCommandHandler(IUnidadeRepository repository, 
+        public UnidadeCommandHandler(IUnidadeRepository repository,
                                     IMapper mapper)
         {
             _repository = repository;
@@ -64,15 +64,27 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
             var objeto = await _repository.GetByIdAsync(request.Id);
 
-            await _repository.DeleteAsync(objeto.Id);
+            if (objeto != null)
+            {
+                var notification = _mapper.Map<UnidadeDeleteNotification>(objeto);
+                objeto.AddDomainEvent(notification);
+            }
+            else
+            {
+                var validationResult = new ValidationResult();
+                validationResult.Errors.Add(new FluentValidation.Results.ValidationFailure("Id", "Registro não encontrado."));
+                return validationResult;
+            }
 
+
+            await _repository.DeleteAsync(objeto.Id);
+            
             objeto.ValidationResult = await Commit(_repository, "");
 
             if (!objeto.ValidationResult.IsValid) return objeto.ValidationResult;
 
-            objeto.AddDomainEvent(_mapper.Map<UnidadeDeleteNotification>(objeto));
-
             return objeto.ValidationResult;
+
         }
     }
 }

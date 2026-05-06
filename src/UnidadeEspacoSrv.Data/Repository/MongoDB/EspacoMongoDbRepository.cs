@@ -20,28 +20,46 @@ namespace UnidadeEspacoSrv.Data.Repository.MongoDB
         {
             // Agora a coleção principal é a de Espaço
             var collectionEspaco = _context.GetCollection<EspacoNotification>("Espaco");
+            var collectionUnidade = _context.GetCollection<UnidadeNotification>("Unidade");
 
             var pipeline = await collectionEspaco.Aggregate()
-                // 1. Fazemos o Join: Procuramos na coleção "Unidade" 
-                // onde o "IdEspaco" seja igual ao "Id" do Espaço atual.
-                .Lookup(
-                    foreignCollectionName: "Unidade",
-                    localField: "Id",           // Campo no Espaço
-                    foreignField: "IdEspaco",   // Campo na Unidade
-                    @as: "Unidades"             // Nome do campo de array que será criado
-                )
-                // 2. Projetamos o resultado
-                .Project(new BsonDocument
-                    {
-                { "Id", 1 },
-                { "Endereco", 1 },
-                { "Nome", 1 }, // Substitua pelos campos reais do seu Espaço
-                { "Unidades", 1 } // Isso será um array de objetos Unidade
-                    })
-                .As<EspacoReadModel>()
-                .ToListAsync();
+
+                .Lookup<EspacoNotification, UnidadeNotification, EspacoReadModel>(
+                        foreignCollection: collectionUnidade,
+                        localField: e => e.Id,           // Chave local (Espaço)
+                        foreignField: u => u.IdEspaco,     // Chave estrangeira (Unidade)
+                        @as: res => res.Unidades  // Onde salvar o array resultante no EspacoReadModel
+                    )
+                .Project(x => new EspacoReadModel
+                {
+                    Id = x.Id,
+                    Nome = x.Nome,
+                    Endereco = x.Endereco,
+                    Unidades = x.Unidades //.Where(u => u.Ativo).ToList()
+                }).ToListAsync();
+
+            #region Lista Espaçoa
+            //.Lookup(
+            //    foreignCollectionName: "Unidade",
+            //    localField: "Id",           // Campo no Espaço
+            //    foreignField: "IdEspaco",   // Campo na Unidade
+            //    @as: "Unidades"             // Nome do campo de array que será criado
+            //)
+            //.Project(new BsonDocument
+            //    {
+            //{ "Id", 1 },
+            //{ "Endereco", 1 },
+            //{ "Nome", 1 }, // Substitua pelos campos reais do seu Espaço
+            //{ "Unidades", 1 } // Isso será um array de objetos Unidade
+            //    })
+            //.As<EspacoReadModel>()
+            //.ToListAsync();
+            #endregion
 
             return pipeline;
         }
+
+
+       
     }
 }
