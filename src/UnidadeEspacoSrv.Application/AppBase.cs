@@ -65,8 +65,8 @@ namespace UnidadeEspacoSrv.Application
         {
             var command = _mapper.Map<TCommandCreate>(request);
             var result = await _mediator.SendCommand<TCommandCreate, TEntity>(command);
-            if (result?.ValidationResult?.IsValid == true)
-                await _mediator.PublishEvent();
+            // if (result?.ValidationResult?.IsValid == true)
+            //    await _mediator.PublishEvent();
 
             var response = _mapper.Map<TViewModel>(result);
 
@@ -82,8 +82,8 @@ namespace UnidadeEspacoSrv.Application
         {
             var command = _mapper.Map<TCommandUpdate>(request);
             var result = await _mediator.SendCommand<TCommandUpdate, TEntity>(command);
-            if (result?.ValidationResult?.IsValid == true)
-                await _mediator.PublishEvent();
+            //if (result?.ValidationResult?.IsValid == true)
+            //    await _mediator.PublishEvent();
             var response = _mapper.Map<TViewModel>(result);
             return response;
         }
@@ -98,8 +98,8 @@ namespace UnidadeEspacoSrv.Application
             var command = Activator.CreateInstance<TCommandDelete>();
             command.Id = id;
             var response = await _mediator.SendCommand(command);
-            if (response?.IsValid == true)
-                await _mediator.PublishEvent();
+           // if (response?.IsValid == true)
+           //     await _mediator.PublishEvent();
             return response;
         }
 

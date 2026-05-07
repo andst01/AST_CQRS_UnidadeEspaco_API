@@ -18,6 +18,10 @@ namespace UnidadeEspacoSrv.Domain.Interfaces
 
         Task<ValidationResult> SendCommand<T>(T command) where T : IRequest<ValidationResult>;
 
-        Task PublishEvent();
+       // Task PublishEventAntigo();
+
+        Task<ValidationResult> PublishEvent(bool hasCommit = true);
+
+        Task<ValidationResult> CommitAsync();
     }
 }

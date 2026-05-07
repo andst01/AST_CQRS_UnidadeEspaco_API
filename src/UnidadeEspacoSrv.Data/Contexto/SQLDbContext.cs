@@ -99,9 +99,19 @@ namespace UnidadeEspacoSrv.Data.Contexto
 
                     }
 
-                    this.Entry(objeto).CurrentValues.SetValues(updateHistorico);
-                    this.Entry(objeto).State = EntityState.Modified;
-                    // this.Set<HistoricoEvento>().Update(objeto);
+                    var entryUpdate = this.Entry(objeto);
+                    foreach (var property in entryUpdate.CurrentValues.Properties)
+                    {
+                        // Só copia o valor se não for a chave primária
+                        if (!property.IsPrimaryKey())
+                        {
+                            entryUpdate.CurrentValues[property] = entryUpdate.Property(property.Name).CurrentValue;
+                            // Ou use o valor vindo do seu objeto de update
+                        }
+                    }
+                    //this.Entry(objeto).CurrentValues.SetValues(updateHistorico);
+                    //this.Entry(objeto).State = EntityState.Modified;
+                   
 
 
                     // deu certo

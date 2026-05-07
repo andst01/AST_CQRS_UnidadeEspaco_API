@@ -7,6 +7,7 @@ using UnidadeEspacoSrv.Domain.Entities;
 using UnidadeEspacoSrv.Domain.Events;
 using UnidadeEspacoSrv.Domain.Interfaces.SQL;
 using UnidadeEspacoSrv.Domain;
+using UnidadeEspacoSrv.Domain.Interfaces;
 
 namespace UnidadeEspacoSrv.Application.Test.Commands
 {
@@ -16,7 +17,8 @@ namespace UnidadeEspacoSrv.Application.Test.Commands
         private Mock<IEspacoRepository> _repositoryMock;
         private Mock<EspacoCommandHandler> _handlerMock;
         private Mock<EspacoCreateCommand> _createCommandMock;
-        private Mock<CommandHandler> _mockCommandHandler;
+        //private Mock<CommandHandler> _mockCommandHandler;
+        private Mock<IMediatorHandler> _mediatorMock;
         private Mock<IMapper> _mockMapper;
         private EspacoCommandHandler _handler;
 
@@ -30,15 +32,16 @@ namespace UnidadeEspacoSrv.Application.Test.Commands
         {
             _repositoryMock = new Mock<IEspacoRepository>();
             _mockMapper = new Mock<IMapper>();
-            _mockCommandHandler = new Mock<CommandHandler>();
-            
-            // Criar um mock parcial do handler para interceptar o Commit protegido.
-            _handlerMock = new Mock<EspacoCommandHandler>(_repositoryMock.Object, _mockMapper.Object);
+            _mediatorMock = new Mock<IMediatorHandler>();
+            // _mockCommandHandler = new Mock<CommandHandler>();
 
-            _handlerMock.Protected()
-                .As<ICommandHandlerProxy>()
-                .Setup(m => m.Commit(It.IsAny<ISQLBaseRepository<Espaco>>(), It.IsAny<string>()))
-                               .ReturnsAsync(new ValidationResult());
+            // Criar um mock parcial do handler para interceptar o Commit protegido.
+            _handlerMock = new Mock<EspacoCommandHandler>(_repositoryMock.Object, _mockMapper.Object, _mediatorMock.Object);
+
+            //_handlerMock.Protected()
+            //    .As<ICommandHandlerProxy>()
+            //    .Setup(m => m.Commit(It.IsAny<ISQLBaseRepository<Espaco>>(), It.IsAny<string>()))
+            //                   .ReturnsAsync(new ValidationResult());
             
             _handler = _handlerMock.Object;
         }
@@ -69,7 +72,11 @@ namespace UnidadeEspacoSrv.Application.Test.Commands
             _repositoryMock.Setup(r => r.AddAsync(It.IsAny<Espaco>()))
                            .ReturnsAsync(espacoEntity);
 
-           
+            _mediatorMock.Setup(x => x.CommitAsync())
+                .ReturnsAsync(new ValidationResult());
+
+           _mediatorMock.Setup(m => m.PublishEvent(true))
+                        .ReturnsAsync(new ValidationResult());
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
 
@@ -108,7 +115,11 @@ namespace UnidadeEspacoSrv.Application.Test.Commands
             _repositoryMock.Setup(r => r.UpdateAsync(It.IsAny<Espaco>(), It.IsAny<int>()))
                            .ReturnsAsync(espacoEntity);
 
+            _mediatorMock.Setup(x => x.CommitAsync())
+                .ReturnsAsync(new ValidationResult());
 
+            _mediatorMock.Setup(m => m.PublishEvent(true))
+                        .ReturnsAsync(new ValidationResult());
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
 
@@ -152,6 +163,8 @@ namespace UnidadeEspacoSrv.Application.Test.Commands
             // Assert
             _repositoryMock.Setup(r => r.DeleteAsync(espacoId)).Returns(Task.CompletedTask);
 
+            _mediatorMock.Setup(m => m.PublishEvent(false))
+                        .ReturnsAsync(new ValidationResult());
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
            

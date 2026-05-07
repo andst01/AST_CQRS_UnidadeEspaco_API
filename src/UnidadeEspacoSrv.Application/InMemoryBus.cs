@@ -6,6 +6,7 @@ using UnidadeEspacoSrv.Domain.Events;
 using UnidadeEspacoSrv.Domain.Interfaces;
 using UnidadeEspacoSrv.Domain.Interfaces.SQL;
 
+
 namespace UnidadeEspacoSrv.Data
 {
     public class InMemoryBus : IMediatorHandler
@@ -14,7 +15,8 @@ namespace UnidadeEspacoSrv.Data
         private readonly IMediator _mediator;
         private readonly SQLDbContext _context;
 
-        public InMemoryBus(IMediator mediator, 
+
+        public InMemoryBus(IMediator mediator,
                            SQLDbContext context)
         {
             _mediator = mediator;
@@ -30,9 +32,9 @@ namespace UnidadeEspacoSrv.Data
             return publishEvent;
         }
 
-        
 
-        public async Task PublishEvent()
+
+        public async Task PublishEventAntigo()
         {
             // 1. Busca todas as entidades que herdaram de EntidadeBase e têm eventos acumulados
             //var domainEntities = _context.ChangeTracker
@@ -73,46 +75,63 @@ namespace UnidadeEspacoSrv.Data
             //        await _mediator.Publish(domainEvent);
             //    });
 
-           // await Task.WhenAll(tasks);
+            // await Task.WhenAll(tasks);
         }
 
-        public async Task<ValidationResult> PublishEventNovo()
+        public async Task<ValidationResult> CommitAsync()
         {
             var validationResult = new ValidationResult();
 
-            // 1. Sincroniza o estado atual do rastreador
+            var success = await _context.Commit();
+
+            if (!success)
+            {
+                validationResult.Errors.Add(new ValidationFailure(
+                    string.Empty, "Não foi possível persistir as alterações no banco de dados."));
+                return validationResult;
+            }
+
+            return validationResult;
+
+        }
+
+        public async Task<ValidationResult> PublishEvent(bool hasCommit = true)
+        {
+            var validationResult = new ValidationResult();
+
             _context.ChangeTracker.DetectChanges();
 
-            // 2. Captura as entidades que possuem eventos ANTES do SaveChanges
-            // É crucial fazer isso agora, pois após o commit, entidades deletadas podem sumir do tracker.
             var domainEntities = _context.ChangeTracker
                 .Entries<EntityBase>()
                 .Where(x => x.Entity.DomainEvents != null && x.Entity.DomainEvents.Any())
                 .ToList();
 
-            // 3. Extrai os eventos para uma lista local
             var domainEvents = domainEntities
                 .SelectMany(x => x.Entity.DomainEvents)
                 .ToList();
 
-            // 4. Limpa os eventos das entidades para evitar que sejam disparados novamente 
-            // caso o mesmo contexto seja usado em outra operação no mesmo escopo.
             domainEntities.ForEach(entity => entity.Entity.ClearDomainEvents());
 
-            // 5. EFETIVA O COMMIT NO BANCO DE DADOS (MongoDB)
-            // Se o CommandHandler usou _context.Remove(), a exclusão física ocorre aqui.
-            var success = await _context.Commit();
-
-            // 6. VALIDAÇÃO: Se havia algo para salvar (eventos detectados) mas o banco não confirmou
-            if (!success && domainEvents.Any())
+            //if(domainEvents.Any())
+            //{
+            if (!hasCommit)
             {
-                validationResult.Errors.Add(new FluentValidation.Results.ValidationFailure(
-                    string.Empty, "Não foi possível persistir as alterações no banco de dados."));
-                return validationResult;
+                var valiationResult = await CommitAsync();
+                if (!valiationResult.IsValid)
+                    return valiationResult;
             }
 
-            // 7. DISPARO DAS NOTIFICAÇÕES (Somente após o sucesso da persistência)
-            // Aqui os NotificationHandlers (como o que atualiza o Read Model) serão executados.
+            //}
+
+            //var success = await _context.Commit();
+
+            //if (!success && domainEvents.Any())
+            //{
+            //    validationResult.Errors.Add(new FluentValidation.Results.ValidationFailure(
+            //        string.Empty, "Não foi possível persistir as alterações no banco de dados."));
+            //    return validationResult;
+            //}
+
             foreach (var domainEvent in domainEvents)
             {
                 await _mediator.Publish(domainEvent);
@@ -123,7 +142,7 @@ namespace UnidadeEspacoSrv.Data
 
         public async Task<ValidationResult> SendCommand<T>(T command) where T : IRequest<FluentValidation.Results.ValidationResult>
         {
-           return await _mediator.Send(command);
+            return await _mediator.Send(command);
         }
 
         public async Task<TResponse> SendCommand<TRequest, TResponse>(TRequest command) where TRequest : IRequest<TResponse>

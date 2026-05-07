@@ -4,11 +4,12 @@ using MediatR;
 using UnidadeEspacoSrv.Domain;
 using UnidadeEspacoSrv.Domain.Entities;
 using UnidadeEspacoSrv.Domain.Events;
+using UnidadeEspacoSrv.Domain.Interfaces;
 using UnidadeEspacoSrv.Domain.Interfaces.SQL;
 
 namespace UnidadeEspacoSrv.Application.Commnds
 {
-    public class UnidadeCommandHandler : CommandHandler,
+    public class UnidadeCommandHandler : //: CommandHandler,
         IRequestHandler<UnidadeCreateCommand, Unidade>,
         IRequestHandler<UnidadeUpdateCommand, Unidade>,
         IRequestHandler<UnidadeDeleteCommand, ValidationResult>
@@ -16,12 +17,15 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
         private readonly IUnidadeRepository _repository;
         private readonly IMapper _mapper;
+        private readonly IMediatorHandler _mediator;
 
         public UnidadeCommandHandler(IUnidadeRepository repository,
-                                    IMapper mapper)
+                                    IMapper mapper,
+                                    IMediatorHandler mediator)
         {
             _repository = repository;
             _mapper = mapper;
+            _mediator = mediator;
         }
 
         public async Task<Unidade> Handle(UnidadeCreateCommand request, CancellationToken cancellationToken)
@@ -32,11 +36,13 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
             var response = await _repository.AddAsync(objeto);
 
-            response.ValidationResult = await Commit(_repository);
+            response.ValidationResult = await _mediator.CommitAsync();
 
             if (!response.ValidationResult.IsValid) return response;
 
             response.AddDomainEvent(_mapper.Map<UnidadeCreateNotification>(response));
+
+            response.ValidationResult = await _mediator.PublishEvent(true);
 
             return response;
         }
@@ -49,11 +55,13 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
             var response = await _repository.UpdateAsync(objeto, objeto.Id);
 
-            response.ValidationResult = await Commit(_repository, "");
+            response.ValidationResult = await _mediator.CommitAsync();
 
             if (!response.ValidationResult.IsValid) return response;
 
             response.AddDomainEvent(_mapper.Map<UnidadeUpdateNotification>(response));
+
+            response.ValidationResult = await _mediator.PublishEvent(true);
 
             return response;
         }
@@ -64,24 +72,11 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
             var objeto = await _repository.GetByIdAsync(request.Id);
 
-            if (objeto != null)
-            {
-                var notification = _mapper.Map<UnidadeDeleteNotification>(objeto);
-                objeto.AddDomainEvent(notification);
-            }
-            else
-            {
-                var validationResult = new ValidationResult();
-                validationResult.Errors.Add(new FluentValidation.Results.ValidationFailure("Id", "Registro não encontrado."));
-                return validationResult;
-            }
-
-
             await _repository.DeleteAsync(objeto.Id);
-            
-            objeto.ValidationResult = await Commit(_repository, "");
 
-            if (!objeto.ValidationResult.IsValid) return objeto.ValidationResult;
+            objeto.AddDomainEvent(_mapper.Map<UnidadeDeleteNotification>(objeto));
+
+            objeto.ValidationResult = await _mediator.PublishEvent(false);
 
             return objeto.ValidationResult;
 

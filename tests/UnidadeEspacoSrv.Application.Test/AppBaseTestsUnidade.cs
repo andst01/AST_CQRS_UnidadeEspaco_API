@@ -94,7 +94,7 @@ namespace UnidadeEspacoSrv.Application.Test
 
             // Assert
             result.Should().BeEquivalentTo(viewModel);
-            _mediatorMock.Verify(x => x.PublishEvent(), Times.Once);
+            //_mediatorMock.Verify(x => x.PublishEvent(), Times.Once);
             _mediatorMock.Verify(x => x.SendCommand<UnidadeCreateCommand, Unidade>(command), Times.Once);
         }
 
@@ -114,7 +114,7 @@ namespace UnidadeEspacoSrv.Application.Test
 
             // Assert
             _mediatorMock.Verify(m => m.SendCommand(It.Is<UnidadeDeleteCommand>(c => c.Id == id)), Times.Once);
-            _mediatorMock.Verify(m => m.PublishEvent(), Times.Once);
+            //_mediatorMock.Verify(m => m.PublishEvent(), Times.Once);
             result.Should().Be(validationResult);
         }
     }

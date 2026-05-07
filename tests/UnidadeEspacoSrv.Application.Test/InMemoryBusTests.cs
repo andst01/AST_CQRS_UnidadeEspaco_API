@@ -17,6 +17,7 @@ namespace UnidadeEspacoSrv.Application.Test
     public class InMemoryBusTests
     {
         private Mock<IMediator> _mediatorMock;
+        private Mock<SQLDbContext> _sqlDbContextMock;
         private SQLDbContext _context;
         private InMemoryBus _inMemoryBus;
         private IFixture _fixture = new Fixture();
@@ -25,6 +26,7 @@ namespace UnidadeEspacoSrv.Application.Test
         public void Setup()
         {
             _mediatorMock = new Mock<IMediator>();
+            _sqlDbContextMock = new Mock<SQLDbContext>();
 
             // Configura um DbContext em memória
             var options = new DbContextOptionsBuilder<SQLDbContext>()
@@ -65,24 +67,46 @@ namespace UnidadeEspacoSrv.Application.Test
         {
 
             // Arrange
-            var entidade = new Espaco(); // Deve herdar de EntityBase
+            var entidade = _fixture.Build<Espaco>()
+                                .Without(x => x.Unidades)
+                                .Without(x => x.ValidationResult)
+                                .Create();
+            var entidade2 = _fixture.Build<HistoricoEvento>()
+                                .With(x => x.Id, 0)
+                               // .Without(x => x.Unidades)
+                                .Without(x => x.ValidationResult)
+                                .Create();
             var evento1 = new EspacoCreateNotification();
-            // var evento2 = new MeuEvento();
-
+            //var evento2 = new 
+             
             entidade.AddDomainEvent(evento1);
-            // entidade.AddDomainEvent(evento2);
 
-            // Adiciona ao contexto para que o ChangeTracker o veja
+            
             _context.Add(entidade);
+           // _context.Add(entidade2);
+
+            // await  _context.SaveChangesAsync();
+            // _context.Commit();
 
             // Act
-            await _inMemoryBus.PublishEvent();
+            try
+            {
+                await _inMemoryBus.PublishEvent();
+            }
+            catch (Exception ex)
+            {
 
-            // Assert
-            // 1. Verificou se o Mediator publicou os eventos
+                // Isso vai imprimir o erro real no console do NUnit
+                Console.WriteLine($"MENSAGEM: {ex.Message}");
+                Console.WriteLine($"INNER: {ex.InnerException?.Message}");
+                Console.WriteLine($"STACK: {ex.StackTrace}");
+                throw;
+            }
+            
+
+            
             _mediatorMock.Verify(m => m.Publish(It.IsAny<EventBase>(), It.IsAny<CancellationToken>()), Times.Exactly(1));
 
-            // 2. Verificou se a lista de eventos da entidade foi limpa
             entidade.DomainEvents.Should().BeEmpty();
 
 
