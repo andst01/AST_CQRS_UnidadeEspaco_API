@@ -191,6 +191,31 @@ namespace UnidadeEspacoSrv.Infra.Data.Test
             //    "O HistoricoEvento deveria ter sido atualizado com o ID real gerado pelo banco.");
         }
 
+        [Test]
+        public async Task Commit_QuandoExistemAlteracoes_DeveRetornarTrue()
+        {
+            // Arrange
+           
+            _context.Espacos.Add(_espaco);
+
+            // Act
+            var resultado = await _context.Commit();
+
+            // Assert
+            Assert.IsTrue(resultado, "O Commit deveria retornar true para alterações persistidas.");
+        }
+
+        [Test]
+        public async Task Commit_QuandoExistemAlteracoes_DeveRetornaRFalse()
+        {
+            // Arrange
+            // Act
+            
+            var resultado = await _context.Commit();
+
+            // Assert
+            Assert.IsFalse(resultado, "O Commit deveria retornar flase para alterações persistidas.");
+        }
         private async Task<Tuple<List<HistoricoEvento>, List<HistoricoEventoEntry>>> InvokeOnBeforePublishEvent(SQLDbContext context)
         {
             var method = typeof(SQLDbContext).GetMethod("OnBeforePublishEvent",

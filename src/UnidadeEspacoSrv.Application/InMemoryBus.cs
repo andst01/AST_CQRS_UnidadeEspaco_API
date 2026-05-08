@@ -33,50 +33,53 @@ namespace UnidadeEspacoSrv.Data
         }
 
 
+        #region PublishEvent Antigo
 
-        public async Task PublishEventAntigo()
-        {
-            // 1. Busca todas as entidades que herdaram de EntidadeBase e têm eventos acumulados
-            //var domainEntities = _context.ChangeTracker
-            //    .Entries<EntityBase>()
-            //    .Where(x => x.Entity.DomainEvents != null && x.Entity.DomainEvents.Any());
+        //public async Task PublishEventAntigo()
+        //{
+        //    // 1. Busca todas as entidades que herdaram de EntidadeBase e têm eventos acumulados
+        //    //var domainEntities = _context.ChangeTracker
+        //    //    .Entries<EntityBase>()
+        //    //    .Where(x => x.Entity.DomainEvents != null && x.Entity.DomainEvents.Any());
 
-            _context.ChangeTracker.DetectChanges();
-            var count = _context.ChangeTracker.Entries().Count();
+        //    _context.ChangeTracker.DetectChanges();
+        //    var count = _context.ChangeTracker.Entries().Count();
 
-            var domainEntities = _context.ChangeTracker
-                .Entries<EntityBase>()
-                .Where(x => x.Entity.DomainEvents != null && x.Entity.DomainEvents.Any())
-                .ToList();
+        //    var domainEntities = _context.ChangeTracker
+        //        .Entries<EntityBase>()
+        //        .Where(x => x.Entity.DomainEvents != null && x.Entity.DomainEvents.Any())
+        //        .ToList();
 
-            //var domainEvents = domainEntities
-            //    .SelectMany(x => x.Entity.DomainEvents)
-            //    .ToList();
+        //    //var domainEvents = domainEntities
+        //    //    .SelectMany(x => x.Entity.DomainEvents)
+        //    //    .ToList();
 
-            var domainEvents = domainEntities
-                .SelectMany(x => x.Entity.DomainEvents)
-                .ToList();
+        //    var domainEvents = domainEntities
+        //        .SelectMany(x => x.Entity.DomainEvents)
+        //        .ToList();
 
-            // 2. Limpa os eventos das entidades para não disparar em duplicidade
-            //domainEntities.ToList()
-            //    .ForEach(entity => entity.Entity.ClearDomainEvents());
+        //    // 2. Limpa os eventos das entidades para não disparar em duplicidade
+        //    //domainEntities.ToList()
+        //    //    .ForEach(entity => entity.Entity.ClearDomainEvents());
 
-            domainEntities.ForEach(entity => entity.Entity.ClearDomainEvents());
+        //    domainEntities.ForEach(entity => entity.Entity.ClearDomainEvents());
 
-            foreach (var domainEvent in domainEvents)
-            {
-                await _mediator.Publish(domainEvent);
-            }
+        //    foreach (var domainEvent in domainEvents)
+        //    {
+        //        await _mediator.Publish(domainEvent);
+        //    }
 
-            // 3. Dispara cada evento via MediatR
-            // Esses eventos serão capturados pelos Handlers que atualizarão o MongoDB
-            //var tasks = domainEvents
-            //    .Select(async (domainEvent) => {
-            //        await _mediator.Publish(domainEvent);
-            //    });
+        //    // 3. Dispara cada evento via MediatR
+        //    // Esses eventos serão capturados pelos Handlers que atualizarão o MongoDB
+        //    //var tasks = domainEvents
+        //    //    .Select(async (domainEvent) => {
+        //    //        await _mediator.Publish(domainEvent);
+        //    //    });
 
-            // await Task.WhenAll(tasks);
-        }
+        //    // await Task.WhenAll(tasks);
+        //}
+
+        #endregion
 
         public async Task<ValidationResult> CommitAsync()
         {
@@ -112,25 +115,12 @@ namespace UnidadeEspacoSrv.Data
 
             domainEntities.ForEach(entity => entity.Entity.ClearDomainEvents());
 
-            //if(domainEvents.Any())
-            //{
             if (!hasCommit)
             {
                 var valiationResult = await CommitAsync();
                 if (!valiationResult.IsValid)
                     return valiationResult;
             }
-
-            //}
-
-            //var success = await _context.Commit();
-
-            //if (!success && domainEvents.Any())
-            //{
-            //    validationResult.Errors.Add(new FluentValidation.Results.ValidationFailure(
-            //        string.Empty, "Não foi possível persistir as alterações no banco de dados."));
-            //    return validationResult;
-            //}
 
             foreach (var domainEvent in domainEvents)
             {

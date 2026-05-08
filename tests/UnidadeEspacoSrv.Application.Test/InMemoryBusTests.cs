@@ -63,7 +63,9 @@ namespace UnidadeEspacoSrv.Application.Test
         }
 
         [Test]
-        public async Task PublishEvent_DevePublicarELimparEventosDasEntidadesNoContexto()
+        [TestCase(true)]
+        [TestCase(false)]
+        public async Task PublishEvent_DevePublicarELimparEventosDasEntidadesNoContexto(bool hasCommit)
         {
 
             // Arrange
@@ -81,17 +83,12 @@ namespace UnidadeEspacoSrv.Application.Test
              
             entidade.AddDomainEvent(evento1);
 
-            
             _context.Add(entidade);
-           // _context.Add(entidade2);
-
-            // await  _context.SaveChangesAsync();
-            // _context.Commit();
-
+          
             // Act
             try
             {
-                await _inMemoryBus.PublishEvent();
+                await _inMemoryBus.PublishEvent(hasCommit);
             }
             catch (Exception ex)
             {
