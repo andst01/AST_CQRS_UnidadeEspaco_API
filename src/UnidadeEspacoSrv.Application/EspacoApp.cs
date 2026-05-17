@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Microsoft.Identity.Client;
 using UnidadeEspacoSrv.Application.Commnds;
 using UnidadeEspacoSrv.Application.Interfaces;
 using UnidadeEspacoSrv.Application.Request;

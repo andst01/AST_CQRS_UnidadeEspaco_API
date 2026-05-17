@@ -11,7 +11,7 @@ using UnidadeEspacoSrv.Domain.Entities;
 using UnidadeEspacoSrv.Domain.Events;
 
 
-namespace UnidadeEspacoSrv.Application.Test
+namespace UnidadeEspacoSrv.Data.Test
 {
     [TestFixture]
     public class InMemoryBusTests

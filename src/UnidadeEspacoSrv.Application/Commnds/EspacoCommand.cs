@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using UnidadeEspacoSrv.Application.Request;
 using UnidadeEspacoSrv.Domain;
 using UnidadeEspacoSrv.Domain.Entities;
 
@@ -12,11 +13,46 @@ namespace UnidadeEspacoSrv.Application.Commnds
         public string Nome { get; set; }
 
         public string Endereco { get; set; }
+
+        protected static T MapFrom<T>(EspacoRequest request) where T : EspacoCommand, new()
+        {
+            var mapped = new T
+            {
+                Id = request.Id,
+                Nome = request.Nome,
+                Endereco = request.Endereco
+            };
+            return mapped;
+        }
+
+        public static implicit operator Espaco(EspacoCommand command)
+        {
+            if (command == null) return null;
+            return new Espaco
+            {
+                Id = command.Id,
+                Nome = command.Nome,
+                Endereco = command.Endereco
+            };
+        }
+
     }
 
 
-    public class EspacoCreateCommand : EspacoCommand { }
-    public class EspacoUpdateCommand : EspacoCommand { }
+    public class EspacoCreateCommand : EspacoCommand 
+    {
+        public static explicit operator EspacoCreateCommand(EspacoRequest request)
+        {
+           return  MapFrom<EspacoCreateCommand>(request);
+        }
+    }
+    public class EspacoUpdateCommand : EspacoCommand 
+    { 
+        public static explicit operator EspacoUpdateCommand(EspacoRequest request)
+        {
+            return MapFrom<EspacoUpdateCommand>(request);
+        }
+    }
 
     public class EspacoDeleteCommand : BaseCommand<ValidationResult>
     {

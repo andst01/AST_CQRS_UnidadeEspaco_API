@@ -30,7 +30,9 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
         public async Task<Unidade> Handle(UnidadeCreateCommand request, CancellationToken cancellationToken)
         {
-            var objeto = _mapper.Map<Unidade>(request);
+            //var objeto = _mapper.Map<Unidade>(request);
+
+            Unidade objeto = request;
 
             if (!request.IsValid()) return null;
 
@@ -40,7 +42,11 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
             if (!response.ValidationResult.IsValid) return response;
 
-            response.AddDomainEvent(_mapper.Map<UnidadeCreateNotification>(response));
+            UnidadeCreateNotification notification = response;
+
+            response.AddDomainEvent(notification);
+
+            //response.AddDomainEvent(_mapper.Map<UnidadeCreateNotification>(response));
 
             response.ValidationResult = await _mediator.PublishEvent(true);
 
@@ -49,7 +55,8 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
         public async Task<Unidade> Handle(UnidadeUpdateCommand request, CancellationToken cancellationToken)
         {
-            var objeto = _mapper.Map<Unidade>(request);
+            //var objeto = _mapper.Map<Unidade>(request);
+            Unidade objeto = request;
 
             if (!request.IsValid()) return null;
 
@@ -59,7 +66,11 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
             if (!response.ValidationResult.IsValid) return response;
 
-            response.AddDomainEvent(_mapper.Map<UnidadeUpdateNotification>(response));
+            UnidadeUpdateNotification notification = response;
+
+            response.AddDomainEvent(notification);
+
+            //response.AddDomainEvent(_mapper.Map<UnidadeUpdateNotification>(response));
 
             response.ValidationResult = await _mediator.PublishEvent(true);
 
@@ -74,7 +85,11 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
             await _repository.DeleteAsync(objeto.Id);
 
-            objeto.AddDomainEvent(_mapper.Map<UnidadeDeleteNotification>(objeto));
+            UnidadeDeleteNotification notification = objeto;
+
+            objeto.AddDomainEvent(notification);
+
+            //objeto.AddDomainEvent(_mapper.Map<UnidadeDeleteNotification>(objeto));
 
             objeto.ValidationResult = await _mediator.PublishEvent(false);
 

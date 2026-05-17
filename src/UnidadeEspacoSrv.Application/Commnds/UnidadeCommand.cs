@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnidadeEspacoSrv.Application.Request;
 using UnidadeEspacoSrv.Domain;
 using UnidadeEspacoSrv.Domain.Entities;
 
@@ -18,11 +19,47 @@ namespace UnidadeEspacoSrv.Application.Commnds
         public int IdEspaco { get; set; }
 
         public string Rede { get; set; }
+
+        protected static T MapFrom<T>(UnidadeRequest request) where T : UnidadeCommand, new()
+        {
+            var mapped = new T
+            {
+                Id = request.Id,
+                IdEspaco = request.IdEspaco,
+                Rede = request.Rede
+            };
+            return mapped;
+        }
+
+        public static implicit operator Unidade(UnidadeCommand command)
+        {
+            if (command == null) return null;
+            return new Unidade
+            {
+                Id = command.Id,
+                IdEspaco = command.IdEspaco,
+                Rede = command.Rede
+            };
+        }
+
+
     }
 
-    public class UnidadeCreateCommand : UnidadeCommand { }
+    public class UnidadeCreateCommand : UnidadeCommand 
+    { 
+        public static explicit operator UnidadeCreateCommand(UnidadeRequest request)
+        {
+            return MapFrom<UnidadeCreateCommand>(request);
+        }
+    }
 
-    public class UnidadeUpdateCommand : UnidadeCommand { }
+    public class UnidadeUpdateCommand : UnidadeCommand 
+    { 
+        public static explicit operator UnidadeUpdateCommand(UnidadeRequest request)
+        {
+            return MapFrom<UnidadeUpdateCommand>(request);
+        }
+    }
 
     public class UnidadeDeleteCommand : BaseCommand<ValidationResult>
     {

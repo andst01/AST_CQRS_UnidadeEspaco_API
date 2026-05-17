@@ -1,10 +1,8 @@
 ﻿using FluentValidation.Results;
 using MediatR;
 using UnidadeEspacoSrv.Data.Contexto;
-using UnidadeEspacoSrv.Domain;
 using UnidadeEspacoSrv.Domain.Events;
 using UnidadeEspacoSrv.Domain.Interfaces;
-using UnidadeEspacoSrv.Domain.Interfaces.SQL;
 
 
 namespace UnidadeEspacoSrv.Data

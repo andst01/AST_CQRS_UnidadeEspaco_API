@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation.Results;
 using MediatR;
-using UnidadeEspacoSrv.Domain;
 using UnidadeEspacoSrv.Domain.Entities;
 using UnidadeEspacoSrv.Domain.Events;
 using UnidadeEspacoSrv.Domain.Interfaces;
@@ -30,7 +29,9 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
         public async Task<Espaco> Handle(EspacoCreateCommand request, CancellationToken cancellationToken)
         {
-            var objeto = _mapper.Map<Espaco>(request);
+            //var objeto = _mapper.Map<Espaco>(request);
+
+            Espaco objeto = request;
            
             if(!request.IsValid()) return null;
 
@@ -40,7 +41,10 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
             if (!response.ValidationResult.IsValid) return response;
 
-            response.AddDomainEvent(_mapper.Map<EspacoCreateNotification>(response));
+            EspacoCreateNotification notification = response;
+            
+            response.AddDomainEvent(notification);
+            // response.AddDomainEvent(_mapper.Map<EspacoCreateNotification>(response));
 
             response.ValidationResult = await _mediatorHandler.PublishEvent(true);
 
@@ -49,7 +53,8 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
         public async Task<Espaco> Handle(EspacoUpdateCommand request, CancellationToken cancellationToken)
         {
-            var objeto = _mapper.Map<Espaco>(request);
+            //var objeto = _mapper.Map<Espaco>(request);
+            Espaco objeto = request;
 
             if (!request.IsValid()) return null;
 
@@ -59,7 +64,11 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
             if (!response.ValidationResult.IsValid) return response;
 
-            response.AddDomainEvent(_mapper.Map<EspacoUpdateNotification>(response));
+            EspacoUpdateNotification notification = response;
+
+            response.AddDomainEvent(notification);
+
+            // response.AddDomainEvent(_mapper.Map<EspacoUpdateNotification>(response));
 
             response.ValidationResult = await _mediatorHandler.PublishEvent(true);
 
@@ -75,11 +84,15 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
             await _repository.DeleteAsync(objeto.Id);
 
-           // objeto.ValidationResult = await Commit(_repository, "");
+            // objeto.ValidationResult = await Commit(_repository, "");
 
-           // if (!objeto.ValidationResult.IsValid) return objeto.ValidationResult;
+            // if (!objeto.ValidationResult.IsValid) return objeto.ValidationResult;
 
-            objeto.AddDomainEvent(_mapper.Map<EspacoDeleteNotification>(objeto));
+            EspacoDeleteNotification notification = objeto;
+
+            objeto.AddDomainEvent(notification);
+
+            // objeto.AddDomainEvent(_mapper.Map<EspacoDeleteNotification>(objeto));
 
             objeto.ValidationResult = await _mediatorHandler.PublishEvent(false);
 
