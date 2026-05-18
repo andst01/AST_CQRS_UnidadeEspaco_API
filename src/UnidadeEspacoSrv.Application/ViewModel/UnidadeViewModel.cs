@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnidadeEspacoSrv.Application.Interfaces;
 using UnidadeEspacoSrv.Domain.Entities;
 using UnidadeEspacoSrv.Domain.Events;
 
 namespace UnidadeEspacoSrv.Application.ViewModel
 {
-    public class UnidadeViewModel
+    public class UnidadeViewModel 
+        : IResponseMapper<Unidade>, INotificationMapper<UnidadeNotification>
     {
         public int Id { get; set; }
 
@@ -18,28 +20,79 @@ namespace UnidadeEspacoSrv.Application.ViewModel
 
         public EspacoViewModel Espaco { get; set; }
 
-        public static explicit operator UnidadeViewModel(UnidadeNotification notification)
+        public void MapFromEntity(Unidade entity)
         {
-            if (notification == null) return null;
-            return new UnidadeViewModel
+            Id = entity.Id;
+            IdEspaco = entity.IdEspaco;
+            Rede = entity.Rede;
+            if (entity.Espaco == null)
             {
-                Id = notification.Id,
-                IdEspaco = notification.IdEspaco,
-                Rede = notification.Rede,
-                Espaco = (EspacoViewModel)notification.Espaco
-            };
+                Espaco = null;
+            }
+            else
+            {
+                var evm = new EspacoViewModel();
+                evm.MapFromEntity(entity.Espaco);
+                Espaco = evm;
+            }
         }
 
-        public static explicit operator UnidadeViewModel(Unidade entity)
+        public void MapFromNotification(UnidadeNotification notification)
         {
-            if (entity == null) return null;
-            return new UnidadeViewModel
+            Id = notification.Id;
+            IdEspaco = notification.IdEspaco;
+            Rede = notification.Rede;
+
+            if (notification.Espaco == null)
             {
-                Id = entity.Id,
-                IdEspaco = entity.IdEspaco,
-                Rede = entity.Rede,
-                Espaco = (EspacoViewModel)entity.Espaco
-            };
+                Espaco = null;
+            }
+            else
+            {
+                var evm = new EspacoViewModel();
+                evm.MapFromNotification(notification.Espaco);
+                Espaco = evm;
+            }
         }
+
+        //public static explicit operator UnidadeViewModel(UnidadeNotification notification)
+        //{
+        //    if (notification == null) return null;
+        //    var vm = new UnidadeViewModel
+        //    {
+        //        Id = notification.Id,
+        //        IdEspaco = notification.IdEspaco,
+        //        Rede = notification.Rede
+        //    };
+
+        //    if (notification.Espaco != null)
+        //    {
+        //        var evm = new EspacoViewModel();
+        //        evm.MapFromNotification(notification.Espaco);
+        //        vm.Espaco = evm;
+        //    }
+
+        //    return vm;
+        //}
+
+        //public static explicit operator UnidadeViewModel(Unidade entity)
+        //{
+        //    if (entity == null) return null;
+        //    var vm = new UnidadeViewModel
+        //    {
+        //        Id = entity.Id,
+        //        IdEspaco = entity.IdEspaco,
+        //        Rede = entity.Rede
+        //    };
+
+        //    if (entity.Espaco != null)
+        //    {
+        //        var evm = new EspacoViewModel();
+        //        evm.MapFromEntity(entity.Espaco);
+        //        vm.Espaco = evm;
+        //    }
+
+        //    return vm;
+        //}
     }
 }

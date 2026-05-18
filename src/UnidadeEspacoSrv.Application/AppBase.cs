@@ -64,11 +64,18 @@ namespace UnidadeEspacoSrv.Application
         public async Task<TViewModel> AdicionarAsync(TRequest request)
         {
             //var command = _mapper.Map<TCommandCreate>(request);
-            var command = (TCommandCreate)(object)request;
+            //var command = (TCommandCreate)(dynamic)request;
+            var command = Activator.CreateInstance<TCommandCreate>();
+            if(command is IMappableFrom<TRequest> mappable)
+                mappable.MapFrom(request);
+
             var result = await _mediator.SendCommand<TCommandCreate, TEntity>(command);
            
             //var response = _mapper.Map<TViewModel>(result);
-            var response = (TViewModel)(object)result;
+            //var response = (TViewModel)(dynamic)result;
+            var response = Activator.CreateInstance<TViewModel>();
+            if (response is IResponseMapper<TEntity> responseMapper)
+                responseMapper.MapFromEntity(result);
 
             return response;
         }
@@ -81,11 +88,22 @@ namespace UnidadeEspacoSrv.Application
         public async Task<TViewModel> AtualizarAsync(TRequest request)
         {
             //var command = _mapper.Map<TCommandUpdate>(request);
-            var command = (TCommandUpdate)(object)request;
+            var command = Activator.CreateInstance<TCommandUpdate>();
+
+            if(command is IMappableFrom<TRequest> mappableCommand)
+                mappableCommand.MapFrom(request);
+            
+            //var command = (TCommandUpdate)(dynamic)request;
             var result = await _mediator.SendCommand<TCommandUpdate, TEntity>(command);
            
             //var response = _mapper.Map<TViewModel>(result);
-            var response = (TViewModel)(object)result;
+            //var response = (TViewModel)(dynamic)result;
+
+            var response = Activator.CreateInstance<TViewModel>();
+
+            if(response is IResponseMapper<TEntity> responseMapper)
+                responseMapper.MapFromEntity(result);
+
             return response;
         }
 
@@ -110,7 +128,7 @@ namespace UnidadeEspacoSrv.Application
         /// <returns></returns>
         public async Task<TViewModel> ObterPorIdAsync(int id)
         {
-            var response = (TViewModel)(object)(await _repository.GetById(id, _collectionName));
+            var response = (TViewModel)(dynamic)(await _repository.GetById(id, _collectionName));
             return response;
             //return _mapper.Map<TViewModel>(await _repository.GetById(id, _collectionName));  
         }
@@ -121,7 +139,7 @@ namespace UnidadeEspacoSrv.Application
         /// <returns></returns>
         public async Task<List<TViewModel>> ObterTodosAsync()
         {
-            var response = (List<TViewModel>)(object)(await _repository.GetAll(_collectionName));
+            var response = (List<TViewModel>)(dynamic)(await _repository.GetAll(_collectionName));
             return response;
             //return _mapper.Map<List<TViewModel>>(await _repository.GetAll(_collectionName));
         }

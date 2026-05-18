@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using UnidadeEspacoSrv.Application.Interfaces;
 using UnidadeEspacoSrv.Domain.Entities;
 using UnidadeEspacoSrv.Domain.Events;
 
 namespace UnidadeEspacoSrv.Application.ViewModel
 {
-    public class EspacoViewModel
+    public class EspacoViewModel 
+        : IResponseMapper<Espaco>, INotificationMapper<EspacoNotification>
     {
         public int Id { get; set; }
 
@@ -18,32 +15,63 @@ namespace UnidadeEspacoSrv.Application.ViewModel
 
         public virtual IEnumerable<UnidadeViewModel> Unidades { get; set; }
 
-        public static explicit operator EspacoViewModel(EspacoNotification notification)
+        public void MapFromEntity(Espaco entity)
         {
-            if (notification == null) return null;
-            return new EspacoViewModel
-            {
-                Id = notification.Id,
-                Nome = notification.Nome,
-                Endereco = notification.Endereco,
-                Unidades = notification.Unidades == null 
-                        ? null 
-                        : notification.Unidades?.Select(u => (UnidadeViewModel)u).ToList()
-            };
+            Id = entity.Id;
+            Nome = entity.Nome;
+            Endereco = entity.Endereco;
+            Unidades = entity.Unidades == null
+                    ? null
+                    : entity.Unidades.Select(u =>
+                    {
+                        var vm = new UnidadeViewModel();
+                        vm.MapFromEntity(u);
+                        return vm;
+                    }).ToList();
+            
         }
 
-        public static explicit operator EspacoViewModel(Espaco entity)
+        public void MapFromNotification(EspacoNotification notification)
         {
-            if (entity == null) return null;
-            return new EspacoViewModel
-            {
-                Id = entity.Id,
-                Nome = entity.Nome,
-                Endereco = entity.Endereco,
-                Unidades = entity.Unidades == null
-                        ? null 
-                        : entity.Unidades?.Select(u => (UnidadeViewModel)u).ToList()
-            };
+            Id = notification.Id;
+            Nome = notification.Nome;
+            Endereco = notification.Endereco;
+            Unidades = notification.Unidades == null
+                ? null
+                : notification.Unidades.Select(u =>
+                {
+                    var vm = new UnidadeViewModel();
+                    vm.MapFromNotification(u);
+                    return vm;
+                }).ToList();
         }
+
+        //public static explicit operator EspacoViewModel(EspacoNotification notification)
+        //{
+        //    if (notification == null) return null;
+        //    return new EspacoViewModel
+        //    {
+        //        Id = notification.Id,
+        //        Nome = notification.Nome,
+        //        Endereco = notification.Endereco,
+        //        Unidades = notification.Unidades == null 
+        //                ? null 
+        //                : notification.Unidades?.Select(u => (UnidadeViewModel)u).ToList()
+        //    };
+        //}
+
+        //public static explicit operator EspacoViewModel(Espaco entity)
+        //{
+        //    if (entity == null) return null;
+        //    return new EspacoViewModel
+        //    {
+        //        Id = entity.Id,
+        //        Nome = entity.Nome,
+        //        Endereco = entity.Endereco,
+        //        Unidades = entity.Unidades == null
+        //                ? null 
+        //                : entity.Unidades?.Select(u => (UnidadeViewModel)u).ToList()
+        //    };
+        //}
     }
 }

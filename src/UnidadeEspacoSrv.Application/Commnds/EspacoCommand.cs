@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
+using UnidadeEspacoSrv.Application.Interfaces;
 using UnidadeEspacoSrv.Application.Request;
 using UnidadeEspacoSrv.Domain;
 using UnidadeEspacoSrv.Domain.Entities;
@@ -39,19 +40,33 @@ namespace UnidadeEspacoSrv.Application.Commnds
     }
 
 
-    public class EspacoCreateCommand : EspacoCommand 
+    public class EspacoCreateCommand : EspacoCommand, IMappableFrom<EspacoRequest>
     {
-        public static explicit operator EspacoCreateCommand(EspacoRequest request)
+        public void MapFrom(EspacoRequest request)
         {
-           return  MapFrom<EspacoCreateCommand>(request);
+            this.Id = request.Id;
+            this.Nome = request.Nome;
+            this.Endereco = request.Endereco;
         }
+
+        //public static explicit operator EspacoCreateCommand(EspacoRequest request)
+        //{
+        //   return  MapFrom<EspacoCreateCommand>(request);
+        //}
     }
-    public class EspacoUpdateCommand : EspacoCommand 
-    { 
-        public static explicit operator EspacoUpdateCommand(EspacoRequest request)
+    public class EspacoUpdateCommand : EspacoCommand, IMappableFrom<EspacoRequest>
+    {
+        public void MapFrom(EspacoRequest request)
         {
-            return MapFrom<EspacoUpdateCommand>(request);
+            this.Id = request.Id;
+            this.Nome = request.Nome;
+            this.Endereco = request.Endereco;
         }
+
+        //public static explicit operator EspacoUpdateCommand(EspacoRequest request)
+        //{
+        //    return MapFrom<EspacoUpdateCommand>(request);
+        //}
     }
 
     public class EspacoDeleteCommand : BaseCommand<ValidationResult>
