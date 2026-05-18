@@ -64,18 +64,13 @@ namespace UnidadeEspacoSrv.Application
         public async Task<TViewModel> AdicionarAsync(TRequest request)
         {
             //var command = _mapper.Map<TCommandCreate>(request);
-            //var command = (TCommandCreate)(dynamic)request;
-            var command = Activator.CreateInstance<TCommandCreate>();
-            if(command is IMappableFrom<TRequest> mappable)
-                mappable.MapFrom(request);
-
-            var result = await _mediator.SendCommand<TCommandCreate, TEntity>(command);
            
-            //var response = _mapper.Map<TViewModel>(result);
-            //var response = (TViewModel)(dynamic)result;
-            var response = Activator.CreateInstance<TViewModel>();
-            if (response is IResponseMapper<TEntity> responseMapper)
-                responseMapper.MapFromEntity(result);
+            var command = (TCommandCreate)Activator.CreateInstance(typeof(TCommandCreate), request);
+            
+            var result = await _mediator.SendCommand<TCommandCreate, TEntity>(command);
+
+            var response = (TViewModel)Activator.CreateInstance(typeof(TViewModel), result);
+           
 
             return response;
         }
@@ -88,22 +83,13 @@ namespace UnidadeEspacoSrv.Application
         public async Task<TViewModel> AtualizarAsync(TRequest request)
         {
             //var command = _mapper.Map<TCommandUpdate>(request);
-            var command = Activator.CreateInstance<TCommandUpdate>();
+        
+            var command = (TCommandUpdate)Activator.CreateInstance(typeof(TCommandUpdate), request);
 
-            if(command is IMappableFrom<TRequest> mappableCommand)
-                mappableCommand.MapFrom(request);
-            
-            //var command = (TCommandUpdate)(dynamic)request;
             var result = await _mediator.SendCommand<TCommandUpdate, TEntity>(command);
-           
-            //var response = _mapper.Map<TViewModel>(result);
-            //var response = (TViewModel)(dynamic)result;
 
-            var response = Activator.CreateInstance<TViewModel>();
-
-            if(response is IResponseMapper<TEntity> responseMapper)
-                responseMapper.MapFromEntity(result);
-
+            var response = (TViewModel)Activator.CreateInstance(typeof(TViewModel), result);
+            
             return response;
         }
 
@@ -128,7 +114,15 @@ namespace UnidadeEspacoSrv.Application
         /// <returns></returns>
         public async Task<TViewModel> ObterPorIdAsync(int id)
         {
-            var response = (TViewModel)(dynamic)(await _repository.GetById(id, _collectionName));
+            // var response = (TViewModel)(dynamic)(await _repository.GetById(id, _collectionName));
+            var response = Activator.CreateInstance<TViewModel>();
+
+            if(response is INotificationMapper<TNotification> notificationMapper)
+            {
+                var notification = await _repository.GetById(id, _collectionName);
+                notificationMapper.MapFromNotification(notification);
+            }
+
             return response;
             //return _mapper.Map<TViewModel>(await _repository.GetById(id, _collectionName));  
         }
@@ -139,7 +133,24 @@ namespace UnidadeEspacoSrv.Application
         /// <returns></returns>
         public async Task<List<TViewModel>> ObterTodosAsync()
         {
-            var response = (List<TViewModel>)(dynamic)(await _repository.GetAll(_collectionName));
+            //var response = (List<TViewModel>)(dynamic)(await _repository.GetAll(_collectionName));
+            //return response;
+
+            //var response = new List<TViewModel>();
+            //var notifications = await _repository.GetAll(_collectionName);
+            //foreach (var notification in notifications)
+            //{
+            //    var viewModel = Activator.CreateInstance<TViewModel>();
+            //    if (viewModel is INotificationMapper<TNotification> notificationMapper)
+            //        notificationMapper.MapFromNotification(notification);
+            //    response.Add(viewModel);
+            //}
+
+            //return response;
+
+            var result = await _repository.GetAll(_collectionName);
+            var response = result.Select(n => (TViewModel)Activator.CreateInstance(typeof(TViewModel), n)).ToList();
+
             return response;
             //return _mapper.Map<List<TViewModel>>(await _repository.GetAll(_collectionName));
         }

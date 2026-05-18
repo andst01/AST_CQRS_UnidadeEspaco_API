@@ -1,11 +1,11 @@
-﻿using UnidadeEspacoSrv.Application.Interfaces;
+﻿using MediatR;
+using UnidadeEspacoSrv.Application.Interfaces;
 using UnidadeEspacoSrv.Domain.Entities;
 using UnidadeEspacoSrv.Domain.Events;
 
 namespace UnidadeEspacoSrv.Application.ViewModel
 {
-    public class EspacoViewModel 
-        : IResponseMapper<Espaco>, INotificationMapper<EspacoNotification>
+    public class EspacoViewModel
     {
         public int Id { get; set; }
 
@@ -15,36 +15,60 @@ namespace UnidadeEspacoSrv.Application.ViewModel
 
         public virtual IEnumerable<UnidadeViewModel> Unidades { get; set; }
 
-        public void MapFromEntity(Espaco entity)
+        public EspacoViewModel() { }
+
+        public EspacoViewModel(Espaco entity)
         {
-            Id = entity.Id;
-            Nome = entity.Nome;
-            Endereco = entity.Endereco;
-            Unidades = entity.Unidades == null
+            this.Id = entity.Id;
+            this.Nome = entity.Nome;
+            this.Endereco = entity.Endereco;
+            this.Unidades = entity.Unidades == null
                     ? null
-                    : entity.Unidades.Select(u =>
-                    {
-                        var vm = new UnidadeViewModel();
-                        vm.MapFromEntity(u);
-                        return vm;
-                    }).ToList();
-            
+                    : entity.Unidades.Select(u => new UnidadeViewModel(u)).ToList();
+
         }
 
-        public void MapFromNotification(EspacoNotification notification)
+        public EspacoViewModel(EspacoNotification notification)
         {
-            Id = notification.Id;
-            Nome = notification.Nome;
-            Endereco = notification.Endereco;
-            Unidades = notification.Unidades == null
-                ? null
-                : notification.Unidades.Select(u =>
-                {
-                    var vm = new UnidadeViewModel();
-                    vm.MapFromNotification(u);
-                    return vm;
-                }).ToList();
+            this.Id = notification.Id;
+            this.Nome = notification.Nome;
+            this.Endereco = notification.Endereco;
+            this.Unidades = notification.Unidades == null
+                    ? null
+                    : notification.Unidades.Select(u => new UnidadeViewModel(u)).ToList();
+
         }
+
+        //public void MapFromEntity(Espaco entity)
+        //{
+        //    Id = entity.Id;
+        //    Nome = entity.Nome;
+        //    Endereco = entity.Endereco;
+        //    Unidades = entity.Unidades == null
+        //            ? null
+        //            : entity.Unidades.Select(u =>
+        //            {
+        //                var vm = new UnidadeViewModel();
+        //                vm.MapFromEntity(u);
+        //                return vm;
+        //            }).ToList();
+            
+        //}
+
+        //public void MapFromNotification(EspacoNotification notification)
+        //{
+        //    Id = notification.Id;
+        //    Nome = notification.Nome;
+        //    Endereco = notification.Endereco;
+        //    Unidades = notification.Unidades == null
+        //        ? null
+        //        : notification.Unidades.Select(u =>
+        //        {
+        //            var vm = new UnidadeViewModel();
+        //            vm.MapFromNotification(u);
+        //            return vm;
+        //        }).ToList();
+        //}
 
         //public static explicit operator EspacoViewModel(EspacoNotification notification)
         //{

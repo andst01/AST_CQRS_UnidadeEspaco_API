@@ -10,7 +10,6 @@ using UnidadeEspacoSrv.Domain.Events;
 namespace UnidadeEspacoSrv.Application.ViewModel
 {
     public class UnidadeViewModel 
-        : IResponseMapper<Unidade>, INotificationMapper<UnidadeNotification>
     {
         public int Id { get; set; }
 
@@ -20,40 +19,62 @@ namespace UnidadeEspacoSrv.Application.ViewModel
 
         public EspacoViewModel Espaco { get; set; }
 
-        public void MapFromEntity(Unidade entity)
+        public UnidadeViewModel() { }
+
+        public UnidadeViewModel(Unidade entity)
         {
             Id = entity.Id;
             IdEspaco = entity.IdEspaco;
             Rede = entity.Rede;
-            if (entity.Espaco == null)
-            {
-                Espaco = null;
-            }
-            else
-            {
-                var evm = new EspacoViewModel();
-                evm.MapFromEntity(entity.Espaco);
-                Espaco = evm;
-            }
+            Espaco = entity.Espaco == null 
+                ? null 
+                : new EspacoViewModel(entity.Espaco);
         }
 
-        public void MapFromNotification(UnidadeNotification notification)
+        public UnidadeViewModel(UnidadeNotification notification)
         {
             Id = notification.Id;
             IdEspaco = notification.IdEspaco;
             Rede = notification.Rede;
-
-            if (notification.Espaco == null)
-            {
-                Espaco = null;
-            }
-            else
-            {
-                var evm = new EspacoViewModel();
-                evm.MapFromNotification(notification.Espaco);
-                Espaco = evm;
-            }
+            Espaco = notification.Espaco == null 
+                ? null 
+                : new EspacoViewModel(notification.Espaco);
         }
+
+        //public void MapFromEntity(Unidade entity)
+        //{
+        //    Id = entity.Id;
+        //    IdEspaco = entity.IdEspaco;
+        //    Rede = entity.Rede;
+        //    if (entity.Espaco == null)
+        //    {
+        //        Espaco = null;
+        //    }
+        //    else
+        //    {
+        //        var evm = new EspacoViewModel();
+        //        evm.MapFromEntity(entity.Espaco);
+        //        Espaco = evm;
+        //    }
+        //}
+
+        //public void MapFromNotification(UnidadeNotification notification)
+        //{
+        //    Id = notification.Id;
+        //    IdEspaco = notification.IdEspaco;
+        //    Rede = notification.Rede;
+
+        //    if (notification.Espaco == null)
+        //    {
+        //        Espaco = null;
+        //    }
+        //    else
+        //    {
+        //        var evm = new EspacoViewModel();
+        //        evm.MapFromNotification(notification.Espaco);
+        //        Espaco = evm;
+        //    }
+        //}
 
         //public static explicit operator UnidadeViewModel(UnidadeNotification notification)
         //{

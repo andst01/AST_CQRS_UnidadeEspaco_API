@@ -15,8 +15,18 @@ namespace UnidadeEspacoSrv.Application.Commnds
 
         public string Endereco { get; set; }
 
+        public EspacoCommand() { }
+
+        public EspacoCommand(EspacoRequest request)
+        {
+            this.Id = request.Id;
+            this.Nome = request.Nome;
+            this.Endereco = request.Endereco;
+        }
+
         protected static T MapFrom<T>(EspacoRequest request) where T : EspacoCommand, new()
         {
+          
             var mapped = new T
             {
                 Id = request.Id,
@@ -40,28 +50,44 @@ namespace UnidadeEspacoSrv.Application.Commnds
     }
 
 
-    public class EspacoCreateCommand : EspacoCommand, IMappableFrom<EspacoRequest>
+    public class EspacoCreateCommand : EspacoCommand
     {
-        public void MapFrom(EspacoRequest request)
+        public EspacoCreateCommand() { }
+
+        public EspacoCreateCommand(EspacoRequest request)
         {
             this.Id = request.Id;
             this.Nome = request.Nome;
             this.Endereco = request.Endereco;
         }
 
+        //public void MapFrom(EspacoRequest request)
+        //{
+        //    var command = new EspacoCommand(request);
+        //}
+
         //public static explicit operator EspacoCreateCommand(EspacoRequest request)
         //{
         //   return  MapFrom<EspacoCreateCommand>(request);
         //}
     }
-    public class EspacoUpdateCommand : EspacoCommand, IMappableFrom<EspacoRequest>
+    public class EspacoUpdateCommand : EspacoCommand
     {
-        public void MapFrom(EspacoRequest request)
+        public EspacoUpdateCommand() { }
+
+        public EspacoUpdateCommand(EspacoRequest request)
         {
             this.Id = request.Id;
             this.Nome = request.Nome;
             this.Endereco = request.Endereco;
         }
+
+        //public void MapFrom(EspacoRequest request)
+        //{
+        //    this.Id = request.Id;
+        //    this.Nome = request.Nome;
+        //    this.Endereco = request.Endereco;
+        //}
 
         //public static explicit operator EspacoUpdateCommand(EspacoRequest request)
         //{

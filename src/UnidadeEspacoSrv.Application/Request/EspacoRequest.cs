@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnidadeEspacoSrv.Application.Commnds;
 
 namespace UnidadeEspacoSrv.Application.Request
 {
@@ -16,5 +17,7 @@ namespace UnidadeEspacoSrv.Application.Request
 
         [Required(ErrorMessage = "O endereço é obrigatório.")]
         public string Endereco { get; set; }
+
+        
     }
 }

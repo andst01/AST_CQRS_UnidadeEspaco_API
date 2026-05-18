@@ -46,19 +46,37 @@ namespace UnidadeEspacoSrv.Application.Commnds
     }
 
     public class UnidadeCreateCommand : UnidadeCommand 
-    { 
-        public static explicit operator UnidadeCreateCommand(UnidadeRequest request)
+    {
+        public UnidadeCreateCommand() { }
+
+        public UnidadeCreateCommand(UnidadeRequest request)
         {
-            return MapFrom<UnidadeCreateCommand>(request);
+            Id = request.Id;
+            IdEspaco = request.IdEspaco;
+            Rede = request.Rede;
         }
+
+        //public static explicit operator UnidadeCreateCommand(UnidadeRequest request)
+        //{
+        //    return MapFrom<UnidadeCreateCommand>(request);
+        //}
     }
 
     public class UnidadeUpdateCommand : UnidadeCommand 
-    { 
-        public static explicit operator UnidadeUpdateCommand(UnidadeRequest request)
+    {
+
+        public UnidadeUpdateCommand() { }
+
+        public UnidadeUpdateCommand(UnidadeRequest request)
         {
-            return MapFrom<UnidadeUpdateCommand>(request);
+            Id = request.Id;
+            IdEspaco = request.IdEspaco;
+            Rede = request.Rede;
         }
+        //public static explicit operator UnidadeUpdateCommand(UnidadeRequest request)
+        //{
+        //    return MapFrom<UnidadeUpdateCommand>(request);
+        //}
     }
 
     public class UnidadeDeleteCommand : BaseCommand<ValidationResult>
